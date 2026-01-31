@@ -130,8 +130,10 @@ void    SocketManager::checkForNewClients( std::vector<struct pollfd>& _pollfd, 
                 _server.closeClientConnection();
                 throw std::runtime_error(strerror(errno));
             }
+            #ifdef SO_NOSIGPIPE // to prevent compilation error on linux, 'SO_NOSIGPIPE' is a macOS only
             int sigYes = 1;
             setsockopt(clientFd, SOL_SOCKET, SO_NOSIGPIPE, &sigYes, sizeof(sigYes));
+            #endif
             _server.addClients(Client(clientFd, detectServerBlock(_pollfd[i].fd)), _pollfd);
             SocketManager::setNonBlocking(clientFd);
             std::cout << CONNECTION << YELLOW << "New Client Connected, SOCKET_FD=" << clientFd << RESET << std::endl;
